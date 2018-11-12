@@ -1,9 +1,14 @@
 default: codegen
 
-CXXFLAGS = -Wall -std=c++11
+llvm-config = /usr/local/opt/llvm/bin/llvm-config
+CXXFLAGS = -g -Wall -std=c++11 `$(llvm-config) --cppflags`
+LDFLAGS = -g `$(llvm-config) --ldflags --system-libs --libs`
+
+clean:
+	rm -rf *.o codegen
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
 codegen: codegen.o
-	$(CXX) -o $@ $^
+	$(CXX) -v $(LDFLAGS) -o $@ $^
