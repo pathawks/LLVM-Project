@@ -35,25 +35,26 @@ class Codegen {
 	}
 };
 
-Module* open() {
+Module& open() {
 	SMDiagnostic error;
 	LLVMContext context;
-	return parseIRFile("HelloWorld.ll", error, context).get();
+	return *(parseIRFile("HelloWorld.bc", error, context).get());
 }
 
 int main(int argc, char** argv) {
-	Module *Mod = open();
-	// for (Function &f : *Mod) {
-		// cout << "asda" << f.getName().str() << endl;
-	// }
-	cout << "Name: " << Mod->getDataLayoutStr() << endl;
-	Mod->materializeAll();
-// 	cout << "Sieze: " << Mod->globals().size() << endl;
-	for (auto &g : Mod->globals()) {
-		cout << "global" << endl;
+	SMDiagnostic error;
+	LLVMContext context;
+	Module &Mod = *(parseIRFile("HelloWorld.bc", error, context).get());
+	cout << "Platform: " << Mod.getTargetTriple() << endl;
+	cout << "Instructions: " << Mod.getInstructionCount() << endl;
+	cout << "Id: " << Mod.getModuleIdentifier() << endl;
+	cout << "Source File: " << Mod.getSourceFileName() << endl;
+	for (const auto &g : Mod.globals()) {
+		cout << "global: " << g.getName().str() << endl;
 	}
-	Codegen c;
-	cout << c.instruction("retq") << endl;
-	cout << c.instruction("push", "$1") << endl;
-	cout << c.instruction("movq", "%rbp", "%rsp") << endl;
+//	Mod->dump();
+//	Codegen c;
+//	cout << c.instruction("retq") << endl;
+//	cout << c.instruction("push", "$1") << endl;
+//	cout << c.instruction("movq", "%rbp", "%rsp") << endl;
 }
