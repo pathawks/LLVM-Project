@@ -7,7 +7,7 @@ CXXFLAGS = -g -Wall -std=c++11 `$(llvm-config) --cppflags`
 LDFLAGS = -g `$(llvm-config) --ldflags --system-libs --libs`
 
 clean:
-	rm -rf *.o codegen
+	rm -rf *.o *.bc codegen
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
@@ -16,4 +16,4 @@ codegen: codegen.o
 	$(CXX) -v $(LDFLAGS) -o $@ $^
 
 HelloWorld.bc: HelloWorld.c
-	$(clang) -c -emit-llvm -o $@ $^
+	$(clang) -c -emit-llvm -O0 -o $@ $^
