@@ -12,9 +12,6 @@
 using namespace std;
 using namespace llvm;
 
-istream& in = cin;
-ostream& out = cout;
-
 class Codegen {
 	public:
 	void header() {
