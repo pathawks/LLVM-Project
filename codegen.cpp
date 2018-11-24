@@ -9,12 +9,6 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/SourceMgr.h>
 
-//#include <llvm/ADT/STLExtras.h>
-#include <llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm/ExecutionEngine/GenericValue.h>
-#include <llvm/ExecutionEngine/MCJIT.h>
-#include <llvm/Support/TargetSelect.h>
-
 using namespace std;
 using namespace llvm;
 
@@ -45,10 +39,6 @@ Module& open() {
 }
 
 int main(int argc, char** argv) {
-	InitializeNativeTarget();
-	LLVMInitializeNativeAsmPrinter();
-	LLVMInitializeNativeAsmParser();
-
 	SMDiagnostic error;
 	LLVMContext context;
 	std::unique_ptr<Module> mod = parseIRFile("HelloWorld.bc", error, context, false);
