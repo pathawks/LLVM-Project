@@ -50,9 +50,10 @@ int main(int argc, char** argv) {
 	cout << "Source File: " << m->getSourceFileName() << endl;
 
 	for (Function &f: m->functions()) {
+		cout << f.getName().str() << ":" << endl;
 		for (BasicBlock &block: f.getBasicBlockList()) {
 			for (Instruction &instruction: block) {
-				outs() << instruction << "\n";
+				outs() << "\t" << instruction << "\n";
 			}
 		}
 	}
