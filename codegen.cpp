@@ -9,6 +9,12 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/SourceMgr.h>
 
+//#include <llvm/ADT/STLExtras.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm/ExecutionEngine/GenericValue.h>
+#include <llvm/ExecutionEngine/MCJIT.h>
+#include <llvm/Support/TargetSelect.h>
+
 using namespace std;
 using namespace llvm;
 
@@ -39,17 +45,31 @@ Module& open() {
 }
 
 int main(int argc, char** argv) {
+	InitializeNativeTarget();
+	LLVMInitializeNativeAsmPrinter();
+	LLVMInitializeNativeAsmParser();
+
 	SMDiagnostic error;
 	LLVMContext context;
-	Module &Mod = *(parseIRFile("HelloWorld.bc", error, context).get());
-	cout << "Platform: " << Mod.getTargetTriple() << endl;
-	cout << "Instructions: " << Mod.getInstructionCount() << endl;
-	cout << "Id: " << Mod.getModuleIdentifier() << endl;
-	cout << "Source File: " << Mod.getSourceFileName() << endl;
-	for (const auto &g : Mod.globals()) {
+	std::unique_ptr<Module> mod = parseIRFile("HelloWorld.bc", error, context, false);
+	Module *m = mod.get();
+
+	cout << "Platform: " << m->getTargetTriple() << endl;
+	cout << "Instructions: " << m->getInstructionCount() << endl;
+	cout << "Id: " << m->getModuleIdentifier() << endl;
+	cout << "Source File: " << m->getSourceFileName() << endl;
+
+	for (Function &f: m->functions()) {
+		for (BasicBlock &block: f.getBasicBlockList()) {
+			for (Instruction &instruction: block) {
+				outs() << instruction << "\n";
+			}
+		}
+	}
+
+	for (const auto &g : m->globals()) {
 		cout << "global: " << g.getName().str() << endl;
 	}
-//	Mod->dump();
 //	Codegen c;
 //	cout << c.instruction("retq") << endl;
 //	cout << c.instruction("push", "$1") << endl;
