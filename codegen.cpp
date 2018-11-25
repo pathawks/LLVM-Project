@@ -107,7 +107,15 @@ string compile(Instruction &i) {
 int main(int argc, char** argv) {
 	SMDiagnostic error;
 	LLVMContext context;
-	std::unique_ptr<Module> mod = parseIRFile("Add.bc", error, context, false);
+	std::unique_ptr<Module> mod;
+	if (argc > 1 && strcmp(argv[1],"-")) {
+		string inputFile = argv[1];
+		mod = parseIRFile(inputFile, error, context, false);
+	} else {
+		cerr << "No input file specified"    "\n"
+			    "Reading LLVM-IR from stdin" << endl;
+		mod = parseIRFile("-", error, context, false);
+	}
 	Module *m = mod.get();
 
 	cout <<         "# Platform: " << m->getTargetTriple()
