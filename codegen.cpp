@@ -43,7 +43,11 @@ string op(Value *v) {
 	} else if (ConstantData* m = dyn_cast<ConstantData>(v)) {
 		s << "ConstantData";
 	} else if (Constant* m = dyn_cast<Constant>(v)) {
-		s << "Constant";
+		if (m->hasName()) {
+			s << m->getName().str();
+		} else {
+			s << "Constant";
+		}
 	} else if (AllocaInst* a = dyn_cast<AllocaInst>(v)) {
 		s << op(a->getOperand(0)) << "(%rsp)";
 	} else if (CallInst* a = dyn_cast<CallInst>(v)) {
@@ -80,7 +84,7 @@ string compile(Instruction &i) {
 		s << "movq\t" << op(i.getOperand(0)) << ",\t?r11";
 		break;
 	case Instruction::Call:
-		s << "callq\t";
+		s << "callq\t" << op(i.getOperand(i.getNumOperands()-1));
 		break;
 	case Instruction::Ret:
 		s <<     "movq\t" << op(i.getOperand(0)) << ",\t%rax\t# Set return value"
