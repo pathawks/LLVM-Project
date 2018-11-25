@@ -19,11 +19,9 @@ string op(User *v) {
 
 string op(Value *v) {
 	stringstream s;
-	switch(1) {
-	case 0:
-		s << cast<Constant>(*v).getUniqueInteger().getLimitedValue();
-	default:
-//		s << v->getType()->getPrimitiveSizeInBits()/8;
+	if (ConstantInt* CI = dyn_cast<ConstantInt>(v)) {
+		s << '$' << CI->getSExtValue();
+	} else {
 		s << "?OP?";
 	}
 	return s.str();
@@ -36,7 +34,7 @@ string compile(Instruction &i) {
 		s << "subq\t$8,\t%rsp";
 		break;
 	case Instruction::Store:
-		s << "movq\t$" << op(i.getOperand(0)) << ",\t" << op(i.getOperand(1));
+		s << "movq\t" << op(i.getOperand(0)) << ",\t" << op(i.getOperand(1));
 		break;
 	case Instruction::Load:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%(rsp)";
@@ -47,7 +45,9 @@ string compile(Instruction &i) {
 	case Instruction::Ret:
 		s <<   "movq\t%rbp,\t%rsp\t# Restore Old Stack Pointer"
 		     "\n\tpopq\t%rbp    \t# Restore Old Base Pointer"
-		     "\n\tretq            \t# Return from function";
+		     "\n\tmovq\t" << op(i.getOperand(0)) << ",\t%rax\t# Set return value"
+		     "\n\tretq            \t# Return from function"
+		;
 		break;
 	case Instruction::Add:
 		s << "addq\t%rax,\t%(rsp)";
