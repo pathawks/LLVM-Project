@@ -59,14 +59,21 @@ int main(int argc, char** argv) {
 	std::unique_ptr<Module> mod = parseIRFile("Add.bc", error, context, false);
 	Module *m = mod.get();
 
-	cout << "Platform: " << m->getTargetTriple() << endl;
-	cout << "Instructions: " << m->getInstructionCount() << endl;
-	cout << "Id: " << m->getModuleIdentifier() << endl;
-	cout << "Source File: " << m->getSourceFileName() << endl;
+	cout <<         "# Platform: " << m->getTargetTriple()
+	     << "\n" << "# Instructions: " << m->getInstructionCount()
+	     << "\n" << "# Id: " << m->getModuleIdentifier()
+	     << "\n" << "# Source File: " << m->getSourceFileName()
+	     << "\n" << ".global _main\n.equ _main, main"
+	     << endl;
 
 	for (Function &f: m->functions()) {
-		if (!f.getInstructionCount()) continue;
-		cout << "\n" << f.getName().str() << ":" << endl;
+		if (!f.getInstructionCount()) {
+			cout << "\n.equ " << f.getName().str() << ", _" << f.getName().str() << endl;
+			continue;
+		}
+		cout << "\n" << f.getName().str() << ":\t# Function"
+		     << "\n" << "\tmovq\t%rsp, %rbp\t# Save Old Stack Pointer"
+		     << endl;
 		for (BasicBlock &block: f.getBasicBlockList()) {
 			for (Instruction &instruction: block) {
 				outs() << "\t" << compile(instruction) << "\t#\t" << instruction << "\n";
@@ -75,6 +82,6 @@ int main(int argc, char** argv) {
 	}
 
 	for (const auto &g : m->globals()) {
-		cout << "global: " << g.getName().str() << endl;
+		cout << "\nglobal: " << g.getName().str() << endl;
 	}
 }
