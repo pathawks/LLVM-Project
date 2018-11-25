@@ -107,10 +107,11 @@ int main(int argc, char** argv) {
 	Module *m = mod.get();
 
 	cout <<         "# Platform: " << m->getTargetTriple()
-	     << "\n" << "# Instructions: " << m->getInstructionCount()
-	     << "\n" << "# Id: " << m->getModuleIdentifier()
-	     << "\n" << "# Source File: " << m->getSourceFileName()
-	     << "\n" << ".global _main\n.equ _main, main"
+	     << "\n"    "# Instructions: " << m->getInstructionCount()
+	     << "\n"    "# Id: " << m->getModuleIdentifier()
+	     << "\n"    "# Source File: " << m->getSourceFileName()
+	     << "\n"    ".global _main"
+	     << "\n"    ".equ _main, main"
 	     << endl;
 
 	for (Function &f: m->functions()) {
