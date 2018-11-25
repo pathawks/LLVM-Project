@@ -21,9 +21,10 @@ string op(Value *v) {
 	stringstream s;
 	switch(1) {
 	case 0:
-		s << ((Constant*)v)->getUniqueInteger().getLimitedValue();
+		s << cast<Constant>(*v).getUniqueInteger().getLimitedValue();
 	default:
-		s << v->getType()->getPrimitiveSizeInBits()/8;
+//		s << v->getType()->getPrimitiveSizeInBits()/8;
+		s << "?OP?";
 	}
 	return s.str();
 }
@@ -32,21 +33,24 @@ string compile(Instruction &i) {
 	stringstream s;
 	switch (i.getOpcode()) {
 	case Instruction::Alloca:
-		s << "subq\t$8, %rsp";
+		s << "subq\t$8,\t%rsp";
 		break;
 	case Instruction::Store:
-		s << "movq\t$" << op(i.getOperand(0)) << ", " << op(i.getOperand(1));
+		s << "movq\t$" << op(i.getOperand(0)) << ",\t" << op(i.getOperand(1));
 		break;
 	case Instruction::Load:
-		s << "movq\t" << op(i.getOperand(0)) << ", %(rsp)";
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%(rsp)";
 		break;
 	case Instruction::Call:
 		s << "callq\t";
 		break;
 	case Instruction::Ret:
-		s <<   "movq\t%rbp, %rsp\t# Restore Old Stack Pointer"
+		s <<   "movq\t%rbp,\t%rsp\t# Restore Old Stack Pointer"
 		     "\n\tpopq\t%rbp    \t# Restore Old Base Pointer"
 		     "\n\tretq            \t# Return from function";
+		break;
+	case Instruction::Add:
+		s << "addq\t%rax,\t%(rsp)";
 		break;
 	default:
 		s << "unknown instruction";
@@ -75,7 +79,7 @@ int main(int argc, char** argv) {
 		}
 		cout << "\n" << f.getName().str() << ":\t# Function"
 		        "\n"    "\tpushq\t%rbp    \t# Save Old Base Pointer"
-		        "\n"    "\tmovq\t%rsp, %rbp\t# Save Old Stack Pointer"
+		        "\n"    "\tmovq\t%rsp,\t%rbp\t# Save Old Stack Pointer"
 		     << endl;
 		for (BasicBlock &block: f.getBasicBlockList()) {
 			for (Instruction &instruction: block) {
