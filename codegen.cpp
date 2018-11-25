@@ -44,7 +44,9 @@ string compile(Instruction &i) {
 		s << "callq\t";
 		break;
 	case Instruction::Ret:
-		s << "retq";
+		s <<   "movq\t%rbp, %rsp\t# Restore Old Stack Pointer"
+		     "\n\tpopq\t%rbp    \t# Restore Old Base Pointer"
+		     "\n\tretq            \t# Return from function";
 		break;
 	default:
 		s << "unknown instruction";
@@ -72,7 +74,8 @@ int main(int argc, char** argv) {
 			continue;
 		}
 		cout << "\n" << f.getName().str() << ":\t# Function"
-		     << "\n" << "\tmovq\t%rsp, %rbp\t# Save Old Stack Pointer"
+		        "\n"    "\tpushq\t%rbp    \t# Save Old Base Pointer"
+		        "\n"    "\tmovq\t%rsp, %rbp\t# Save Old Stack Pointer"
 		     << endl;
 		for (BasicBlock &block: f.getBasicBlockList()) {
 			for (Instruction &instruction: block) {
