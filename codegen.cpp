@@ -77,8 +77,4 @@ int main(int argc, char** argv) {
 	for (const auto &g : m->globals()) {
 		cout << "global: " << g.getName().str() << endl;
 	}
-//	Codegen c;
-//	cout << c.instruction("retq") << endl;
-//	cout << c.instruction("push", "$1") << endl;
-//	cout << c.instruction("movq", "%rbp", "%rsp") << endl;
 }
