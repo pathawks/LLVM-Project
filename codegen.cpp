@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
 		     << endl;
 		for (BasicBlock &block: f.getBasicBlockList()) {
 			for (Instruction &instruction: block) {
-				outs() << "\t" << compile(instruction) << "\t#\t" << instruction << "\n";
+				outs() << "\n\t#\t" << instruction << "\n\t" << compile(instruction);
 			}
 		}
 	}
