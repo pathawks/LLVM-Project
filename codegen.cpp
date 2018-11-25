@@ -13,16 +13,45 @@
 using namespace std;
 using namespace llvm;
 
-string op(User *v) {
-	return "constant";
+string arg(unsigned a) {
+	switch(a) {
+	case 0:
+		return "%rdi";
+	case 1:
+		return "%rsi";
+	case 2:
+		return "%rdx";
+	case 3:
+		return "%rcx";
+	case 4:
+		return "%r8";
+	case 5:
+		return "%r9";
+	default:
+		stringstream s;
+		s << (a-4)*-8 << "(%rbp)";
+		return s.str();
+	}
 }
 
 string op(Value *v) {
 	stringstream s;
-	if (ConstantInt* CI = dyn_cast<ConstantInt>(v)) {
-		s << '$' << CI->getSExtValue();
+	if (ConstantInt* c = dyn_cast<ConstantInt>(v)) {
+		s << '$' << c->getSExtValue();
+	} else if (ConstantData* m = dyn_cast<ConstantData>(v)) {
+		s << "ConstantData";
+	} else if (Constant* m = dyn_cast<Constant>(v)) {
+		s << "Constant";
+	} else if (AllocaInst* a = dyn_cast<AllocaInst>(v)) {
+		s << "(%rsp)" << op(a->getOperand(0));
+	} else if (Instruction* m = dyn_cast<Instruction>(v)) {
+		s << "Inst";
+	} else if (Argument* a = dyn_cast<Argument>(v)) {
+		s << arg(a->getArgNo());
+	} else if (User* m = dyn_cast<User>(v)) {
+		s << "User";
 	} else {
-		s << "?OP?";
+		s << "??????????";
 	}
 	return s.str();
 }
@@ -34,10 +63,11 @@ string compile(Instruction &i) {
 		s << "subq\t$8,\t%rsp";
 		break;
 	case Instruction::Store:
-		s << "movq\t" << op(i.getOperand(0)) << ",\t" << op(i.getOperand(1));
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
+		s << "\n\tmovq\t" "%r11" ",\t" << op(i.getOperand(1));
 		break;
 	case Instruction::Load:
-		s << "movq\t" << op(i.getOperand(0)) << ",\t%(rsp)";
+		s << "movq\t" << op(i.getOperand(0)) << ",\t?r11";
 		break;
 	case Instruction::Call:
 		s << "callq\t";
@@ -50,7 +80,7 @@ string compile(Instruction &i) {
 		;
 		break;
 	case Instruction::Add:
-		s << "addq\t%rax,\t%(rsp)";
+		s << "addq\t" << op(i.getOperand(0)) << ",\t" << op(i.getOperand(1));
 		break;
 	default:
 		s << "unknown instruction";
