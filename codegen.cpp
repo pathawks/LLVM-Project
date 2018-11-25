@@ -36,14 +36,24 @@ string arg(unsigned a) {
 
 string op(Value *v) {
 	stringstream s;
-	if (ConstantInt* c = dyn_cast<ConstantInt>(v)) {
+	if (BinaryOperator* a = dyn_cast<BinaryOperator>(v)) {
+		return op(a->getOperand(0)); // HACK
+	} else if (ConstantInt* c = dyn_cast<ConstantInt>(v)) {
 		s << '$' << c->getSExtValue();
 	} else if (ConstantData* m = dyn_cast<ConstantData>(v)) {
 		s << "ConstantData";
 	} else if (Constant* m = dyn_cast<Constant>(v)) {
 		s << "Constant";
 	} else if (AllocaInst* a = dyn_cast<AllocaInst>(v)) {
-		s << "(%rsp)" << op(a->getOperand(0));
+		s << op(a->getOperand(0)) << "(%rsp)";
+	} else if (CallInst* a = dyn_cast<CallInst>(v)) {
+		s << "%rax";
+	} else if (SelectInst* a = dyn_cast<SelectInst>(v)) {
+		s << "SelectInst";
+	} else if (ReturnInst* a = dyn_cast<ReturnInst>(v)) {
+		s << "ReturnInst";
+	} else if (UnaryInstruction* a = dyn_cast<UnaryInstruction>(v)) {
+		return op(a->getOperand(0)); // HACK
 	} else if (Instruction* m = dyn_cast<Instruction>(v)) {
 		s << "Inst";
 	} else if (Argument* a = dyn_cast<Argument>(v)) {
@@ -73,14 +83,15 @@ string compile(Instruction &i) {
 		s << "callq\t";
 		break;
 	case Instruction::Ret:
-		s <<   "movq\t%rbp,\t%rsp\t# Restore Old Stack Pointer"
+		s <<     "movq\t" << op(i.getOperand(0)) << ",\t%rax\t# Set return value"
+		     "\n\tmovq\t%rbp,\t%rsp\t# Restore Old Stack Pointer"
 		     "\n\tpopq\t%rbp    \t# Restore Old Base Pointer"
-		     "\n\tmovq\t" << op(i.getOperand(0)) << ",\t%rax\t# Set return value"
 		     "\n\tretq            \t# Return from function"
 		;
 		break;
 	case Instruction::Add:
-		s << "addq\t" << op(i.getOperand(0)) << ",\t" << op(i.getOperand(1));
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
+		s << "\n\taddq\t%r11,\t" << op(i.getOperand(1));
 		break;
 	default:
 		s << "unknown instruction";
