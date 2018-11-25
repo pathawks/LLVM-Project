@@ -13,26 +13,6 @@
 using namespace std;
 using namespace llvm;
 
-class Codegen {
-	public:
-	void header() {
-		cout << ".global _main" << endl
-		     << ".equ _main, main" << endl
-		;
-	}
-
-	string instruction(string in, string op1="", string op2="") {
-		string out = "\t"+in;
-		if (op1.length()) {
-			out +=  "\t" + op1;
-		}
-		if (op2.length()) {
-			out += ",\t" + op2;
-		}
-		return out;
-	}
-};
-
 string op(User *v) {
 	return "constant";
 }
@@ -41,7 +21,7 @@ string op(Value *v) {
 	stringstream s;
 	switch(1) {
 	case 0:
-		s << ((APInt*)v)->getLimitedValue();
+		s << ((Constant*)v)->getUniqueInteger().getLimitedValue();
 	default:
 		s << v->getType()->getPrimitiveSizeInBits()/8;
 	}
@@ -52,14 +32,16 @@ string compile(Instruction &i) {
 	stringstream s;
 	switch (i.getOpcode()) {
 	case Instruction::Alloca:
-		s << "subq\t$" << op(i.getOperand(0)) << ", %rsp";
+		s << "subq\t$8, %rsp";
 		break;
 	case Instruction::Store:
 		s << "movq\t$" << op(i.getOperand(0)) << ", " << op(i.getOperand(1));
 		break;
 	case Instruction::Load:
+		s << "movq\t" << op(i.getOperand(0)) << ", %(rsp)";
+		break;
 	case Instruction::Call:
-		s << "not yet implemented";
+		s << "callq\t";
 		break;
 	case Instruction::Ret:
 		s << "retq";
@@ -84,7 +66,7 @@ int main(int argc, char** argv) {
 
 	for (Function &f: m->functions()) {
 		if (!f.getInstructionCount()) continue;
-		cout << f.getName().str() << ":" << endl;
+		cout << "\n" << f.getName().str() << ":" << endl;
 		for (BasicBlock &block: f.getBasicBlockList()) {
 			for (Instruction &instruction: block) {
 				outs() << "\t" << compile(instruction) << "\t#\t" << instruction << "\n";
