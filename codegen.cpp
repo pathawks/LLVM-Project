@@ -34,7 +34,7 @@ string arg(unsigned n) {
 		return "%r9";
 	default:
 		stringstream s;
-		s << (a-4)*-8 << "(%rbp)";
+		s << (n-4)*-8 << "(%rbp)";
 		return s.str();
 	}
 }
