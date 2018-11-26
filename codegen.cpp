@@ -34,35 +34,39 @@ string arg(unsigned a) {
 	}
 }
 
-string op(Value *v) {
+string op(const Value *v) {
 	stringstream s;
-	if (BinaryOperator* a = dyn_cast<BinaryOperator>(v)) {
+	if (const BinaryOperator* a = dyn_cast<const BinaryOperator>(v)) {
 		return op(a->getOperand(0)); // HACK
-	} else if (ConstantInt* c = dyn_cast<ConstantInt>(v)) {
+	} else if (const ConstantInt* c = dyn_cast<const ConstantInt>(v)) {
 		s << '$' << c->getSExtValue();
-	} else if (ConstantData* m = dyn_cast<ConstantData>(v)) {
+	} else if (const ConstantData* m = dyn_cast<const ConstantData>(v)) {
 		s << "ConstantData";
-	} else if (Constant* m = dyn_cast<Constant>(v)) {
+	} else if (const Constant* m = dyn_cast<const Constant>(v)) {
 		if (m->hasName()) {
 			s << m->getName().str();
 		} else {
-			s << "Constant";
+			s << ".str(%rip)";
 		}
-	} else if (AllocaInst* a = dyn_cast<AllocaInst>(v)) {
-		s << op(a->getOperand(0)) << "(%rsp)";
-	} else if (CallInst* a = dyn_cast<CallInst>(v)) {
+	} else if (const AllocaInst* a = dyn_cast<const AllocaInst>(v)) {
+		if (const ConstantInt* c = dyn_cast<const ConstantInt>(a->getOperand(0))) {
+			s << c->getSExtValue() << "(%rsp)";
+		} else {
+			s << op(a->getOperand(0)) << "()";
+		}
+	} else if (const CallInst* a = dyn_cast<const CallInst>(v)) {
 		s << "%rax";
-	} else if (SelectInst* a = dyn_cast<SelectInst>(v)) {
+	} else if (const SelectInst* a = dyn_cast<const SelectInst>(v)) {
 		s << "SelectInst";
-	} else if (ReturnInst* a = dyn_cast<ReturnInst>(v)) {
+	} else if (const ReturnInst* a = dyn_cast<const ReturnInst>(v)) {
 		s << "ReturnInst";
-	} else if (UnaryInstruction* a = dyn_cast<UnaryInstruction>(v)) {
+	} else if (const UnaryInstruction* a = dyn_cast<const UnaryInstruction>(v)) {
 		return op(a->getOperand(0)); // HACK
-	} else if (Instruction* m = dyn_cast<Instruction>(v)) {
+	} else if (const Instruction* m = dyn_cast<const Instruction>(v)) {
 		s << "Inst";
-	} else if (Argument* a = dyn_cast<Argument>(v)) {
+	} else if (const Argument* a = dyn_cast<const Argument>(v)) {
 		s << arg(a->getArgNo());
-	} else if (User* m = dyn_cast<User>(v)) {
+	} else if (const User* m = dyn_cast<const User>(v)) {
 		s << "User";
 	} else {
 		s << "??????????";
@@ -74,16 +78,20 @@ string compile(Instruction &i) {
 	stringstream s;
 	switch (i.getOpcode()) {
 	case Instruction::Alloca:
-		s << "subq\t$8,\t%rsp";
+		s << "subq\t$8,\t%rsp"
+		     "\n\t" "andq\t$-15,\t%rsp";
 		break;
 	case Instruction::Store:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
 		s << "\n\tmovq\t" "%r11" ",\t" << op(i.getOperand(1));
 		break;
 	case Instruction::Load:
-		s << "movq\t" << op(i.getOperand(0)) << ",\t?r11";
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
 		break;
 	case Instruction::Call:
+		for (int j=0; j<i.getNumOperands()-1; ++j) {
+			s << "leaq\t" << op(i.getOperand(j)) << ",\t" << arg(j) << "\n\t";
+		}
 		s << "callq\t" << op(i.getOperand(i.getNumOperands()-1));
 		break;
 	case Instruction::Ret:
@@ -139,10 +147,12 @@ int main(int argc, char** argv) {
 			for (Instruction &instruction: block) {
 				outs() << "\n\t#\t" << instruction << "\n\t" << compile(instruction);
 			}
+			outs().flush();
 		}
 	}
 
-	for (const auto &g : m->globals()) {
-		cout << "\nglobal: " << g.getName().str() << endl;
+	for (const GlobalVariable &g : m->globals()) {
+		const Value * gg = dyn_cast<const Value>(&g);
+		cout << "\n" << op(gg) << ": .string \"This is a global variable?\"" << endl;
 	}
 }
