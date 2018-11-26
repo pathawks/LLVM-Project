@@ -116,11 +116,12 @@ string compile(Instruction &i) {
 	stringstream s;
 	switch (i.getOpcode()) {
 	case Instruction::Alloca:
-		s << "subq\t$16,\t%rsp";
+		s << "subq\t$16,\t%rsp\t# Make space on the stack";
 		break;
 	case Instruction::Store:
-		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
-		s << "\n\tmovq\t" "%r11" ",\t" << op(i.getOperand(1));
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11\t# Copy value to a temp register"
+		     "\n\tmovq\t" "%r11" ",\t" << op(i.getOperand(1)) << "\t# Copy from temp register to destination"
+		;
 		break;
 	case Instruction::Load:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
@@ -173,7 +174,8 @@ int main(int argc, char** argv) {
 
 	for (Function &f: m->functions()) {
 		if (!f.getInstructionCount()) {
-			cout << "\n.equ " << f.getName().str() << ", _" << f.getName().str() << endl;
+			cout << "\n.equ " << f.getName().str() << ", _" << f.getName().str()
+			     << "\t# External function" << endl;
 			continue;
 		}
 		cout << "\n" << f.getName().str() << ":\t# Function"
