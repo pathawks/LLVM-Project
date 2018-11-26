@@ -42,6 +42,8 @@ string escape(string str) {
 			str.replace(i, 1, "\\n");
 		} else if (str[i] == '\t') {
 			str.replace(i, 1, "\\t");
+		} else if (str[i] == '\"') {
+			str.replace(i, 1, "\\\"");
 		} else {
 			++i;
 		}
