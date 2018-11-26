@@ -109,7 +109,8 @@ string op(const Value *v) {
 	} else if (const User* m = dyn_cast<const User>(v)) {
 		s << "User";
 	} else {
-		s << "??????????";
+		cerr << "Unknown Instruction";
+		s    << "Unknown Instruction";
 	}
 	return s.str();
 }
