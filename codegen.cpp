@@ -92,12 +92,14 @@ string op(const Value *v) {
 		s << "ConstantTokenNone";
 	} else if (const ConstantDataSequential* m = dyn_cast<const ConstantDataSequential>(v)) {
 		s << "ConstantDataSequential";
-	} else if (const Constant* m = dyn_cast<const Constant>(v)) {
+	} else if (const ConstantExpr* m = dyn_cast<const ConstantExpr>(v)) {
 		if (m->hasName()) {
 			s << m->getName().str();
 		} else {
 			s << ".str(%rip)";
 		}
+	} else if (const Constant* m = dyn_cast<const Constant>(v)) {
+		s << "Constant";
 	} else if (const AllocaInst* a = dyn_cast<const AllocaInst>(v)) {
 		if (const ConstantInt* c = dyn_cast<const ConstantInt>(a->getOperand(0))) {
 			s << c->getSExtValue() << "(%rsp)";
