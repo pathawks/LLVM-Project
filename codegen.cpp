@@ -78,8 +78,7 @@ string compile(Instruction &i) {
 	stringstream s;
 	switch (i.getOpcode()) {
 	case Instruction::Alloca:
-		s << "subq\t$8,\t%rsp"
-		     "\n\t" "andq\t$-15,\t%rsp";
+		s << "subq\t$16,\t%rsp";
 		break;
 	case Instruction::Store:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
