@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #include <llvm/LinkAllIR.h>
 #include <llvm/IRReader/IRReader.h>
@@ -34,14 +35,51 @@ string arg(unsigned a) {
 	}
 }
 
+string escape(string str) {
+	size_t i=0;
+	while (i<str.size()) {
+		if (str[i] == '\n') {
+			str.replace(i, 1, "\\n");
+		} else if (str[i] == '\t') {
+			str.replace(i, 1, "\\t");
+		} else {
+			++i;
+		}
+	}
+	return str;
+}
+
 string op(const Value *v) {
 	stringstream s;
 	if (const BinaryOperator* a = dyn_cast<const BinaryOperator>(v)) {
 		return op(a->getOperand(0)); // HACK
 	} else if (const ConstantInt* c = dyn_cast<const ConstantInt>(v)) {
 		s << '$' << c->getSExtValue();
+	} else if (const GlobalVariable* m = dyn_cast<const GlobalVariable>(v)) {
+		if (m->hasInitializer()) {
+			return op(m->getInitializer());
+		} else {
+			s << "GlobalVariable";
+		}
+	} else if (const ConstantDataArray* m = dyn_cast<const ConstantDataArray>(v)) {
+		s << ".string \"" << escape(m->getAsCString().str()) << "\"";
+	} else if (const ConstantAggregateZero* m = dyn_cast<const ConstantAggregateZero>(v)) {
+		if (m->isNullValue()) {
+			return "NULL";
+		}
+		for (int i=0; i<m->getNumElements(); ++i) {
+			s << op(m->getAggregateElement(i));
+		}
+	} else if (const UndefValue* m = dyn_cast<const UndefValue>(v)) {
+		s << "UndefValue";
 	} else if (const ConstantData* m = dyn_cast<const ConstantData>(v)) {
 		s << "ConstantData";
+	} else if (const ConstantPointerNull* m = dyn_cast<const ConstantPointerNull>(v)) {
+		s << "ConstantPointerNull";
+	} else if (const ConstantTokenNone* m = dyn_cast<const ConstantTokenNone>(v)) {
+		s << "ConstantTokenNone";
+	} else if (const ConstantDataSequential* m = dyn_cast<const ConstantDataSequential>(v)) {
+		s << "ConstantDataSequential";
 	} else if (const Constant* m = dyn_cast<const Constant>(v)) {
 		if (m->hasName()) {
 			s << m->getName().str();
@@ -152,6 +190,6 @@ int main(int argc, char** argv) {
 
 	for (const GlobalVariable &g : m->globals()) {
 		const Value * gg = dyn_cast<const Value>(&g);
-		cout << "\n" << op(gg) << ": .string \"This is a global variable?\"" << endl;
+		cout << "\n" << gg->getName().str() << ": " << op(gg) << endl;
 	}
 }
