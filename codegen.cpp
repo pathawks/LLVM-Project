@@ -14,8 +14,12 @@
 using namespace std;
 using namespace llvm;
 
-string arg(unsigned a) {
-	switch(a) {
+/**
+ * Get the register or address of the nth parameter passed to a function
+ * according to macOS ABI
+ */
+string arg(unsigned n) {
+	switch(n) {
 	case 0:
 		return "%rdi";
 	case 1:
@@ -35,6 +39,9 @@ string arg(unsigned a) {
 	}
 }
 
+/**
+ * Escape string to be output in .s file
+ */
 string escape(string str) {
 	size_t i=0;
 	while (i<str.size()) {
@@ -51,6 +58,9 @@ string escape(string str) {
 	return str;
 }
 
+/**
+ * Convert operand value to string
+ */
 string op(const Value *v) {
 	stringstream s;
 	if (const BinaryOperator* a = dyn_cast<const BinaryOperator>(v)) {
@@ -115,6 +125,9 @@ string op(const Value *v) {
 	return s.str();
 }
 
+/**
+ * Compile LLVM Instruction to x86 Assembly
+ */
 string compile(Instruction &i) {
 	stringstream s;
 	switch (i.getOpcode()) {
