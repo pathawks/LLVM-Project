@@ -9,7 +9,10 @@ default: codegen HelloWorld.bc Add.bc
 codegen: codegen.o
 
 clean:
-	rm -rf *.o *.bc codegen a.out
+	rm -rf *.o *.bc *.ll codegen a.out
+
+%.ll: %.c
+	$(CLANG) -S -emit-llvm -O0 -o $@ $^
 
 %.bc: %.c
 	$(CLANG) -c -emit-llvm -O0 -o $@ $^
