@@ -125,7 +125,7 @@ string op(const Value *v) {
 	} else if (const ConstantExpr* m = dyn_cast<const ConstantExpr>(v)) {
 		s << m->getOperand(0)->getName().str() << "(%rip)";
 	} else if (const Constant* m = dyn_cast<const Constant>(v)) {
-		s << "Constant";
+		s << m->getName().str();
 	} else if (const AllocaInst* a = dyn_cast<const AllocaInst>(v)) {
 		if (const ConstantInt* c = dyn_cast<const ConstantInt>(a->getOperand(0))) {
 			s << c->getSExtValue() << "(%rsp)";
