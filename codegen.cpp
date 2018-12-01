@@ -120,9 +120,11 @@ string op(const Value *v) {
 		s << arg(a->getArgNo());
 	} else if (const User* m = dyn_cast<const User>(v)) {
 		s << "User";
+	} else if (const BasicBlock* b = dyn_cast<const BasicBlock>(v)) {
+		s << "Label_" << b->getValueID();
 	} else {
-		cerr << "Unknown Instruction";
-		s    << "Unknown Instruction";
+		cerr << "Unknown Operand";
+		s    << "Unknown Operand";
 	}
 	return s.str();
 }
@@ -160,6 +162,12 @@ string compile(Instruction &i) {
 	case Instruction::Add:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
 		s << "\n\taddq\t%r11,\t" << op(i.getOperand(1));
+		break;
+	case Instruction::Br:
+		if (i.getNumOperands() > 1) {
+			s << "OPERANDS!!!\n\t";
+		}
+		s << "jmp\t" << op(i.getOperand(0));
 		break;
 	default:
 		s << "unknown instruction";
