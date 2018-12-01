@@ -165,9 +165,15 @@ string compile(Instruction &i) {
 		break;
 	case Instruction::Br:
 		if (i.getNumOperands() > 1) {
-			s << "OPERANDS!!!\n\t";
+			s << "jne\t" << op(i.getOperand(1));
+			s << "\n\t";
+			s << "jmp\t" << op(i.getOperand(2));
+		} else {
+			s << "jmp\t" << op(i.getOperand(0));
 		}
-		s << "jmp\t" << op(i.getOperand(0));
+		break;
+	case Instruction::ICmp:
+		s << "cmp\t" << op(i.getOperand(0)) << ",\t" << op(i.getOperand(1));
 		break;
 	default:
 		s << "unknown instruction";
