@@ -245,6 +245,7 @@ int main(int argc, char** argv) {
 		        "\n"    "\tmovq\t%rsp,\t%rbp\t# Save Old Stack Pointer"
 		     << endl;
 		for (BasicBlock &block: f.getBasicBlockList()) {
+			outs() << "Label_" << block.getValueID() << ":";
 			for (Instruction &instruction: block) {
 				outs() << "\n\t#\t" << instruction << "\n\t" << compile(instruction);
 			}
