@@ -19,7 +19,7 @@ using namespace llvm;
  * according to macOS ABI
  */
 string arg(unsigned n) {
-	switch(n) {
+	switch (n) {
 	case 0:
 		return "%rdi";
 	case 1:
@@ -36,6 +36,36 @@ string arg(unsigned n) {
 		stringstream s;
 		s << (n-4)*-8 << "(%rbp)";
 		return s.str();
+	}
+}
+
+/**
+ * https://llvm.org/docs/LangRef.html#id293
+ */
+string condition(unsigned cond) {
+	switch (cond) {
+	case 1: 	// Equal
+		return "eq";
+	case 2: 	// Not Equal
+		return "ne";
+	case 3: 	// Unsigned Greater Than
+		return "ugt";
+	case 4: 	// Unsigned Greater Than or Equal
+		return "uge";
+	case 5: 	// Unsigned Less Than
+		return "ult";
+	case 6: 	// Unsigned Less Than or Equal
+		return "ule";
+	case 7: 	// Signed Greater Than
+		return "sgt";
+	case 8: 	// Signed Greater Than or Equal
+		return "sge";
+	case 9: 	// Signed less than
+		return "slt";
+	case 10:	// Signed less than or equal
+		return "sle";
+	default:
+		return "???";
 	}
 }
 
