@@ -217,8 +217,8 @@ int main(int argc, char** argv) {
 		mod = parseIRFile(inputFile, error, context, false);
 		if (!mod) {
 			cerr << "Could not open input file: " << inputFile << endl;
+			exit(EXIT_FAILURE);
 		}
-		exit(EXIT_FAILURE);
 	} else {
 		cerr << "No input file specified"    "\n"
 			    "Reading LLVM-IR from stdin" << endl;
