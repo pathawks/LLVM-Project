@@ -14,6 +14,7 @@ string compile(Instruction &i) {
 	stringstream s;
 	switch (i.getOpcode()) {
 	case Instruction::Alloca:
+		return "";
 		s << "subq\t$8,\t%rsp\t# Make space on the stack";
 		break;
 	case Instruction::Store:
