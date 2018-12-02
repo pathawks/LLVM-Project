@@ -4,7 +4,7 @@ CLANG = $(llvm-path)/clang
 CXXFLAGS = -g -Wall -std=c++11 `$(llvm-config) --cppflags`
 LDFLAGS = -g `$(llvm-config) --ldflags --system-libs --libs`
 
-default: build/ codegen examples/Add.bc examples/HelloWorld.bc examples/Sort.bc
+default: build/ codegen examples/Add.bc examples/HelloWorld.bc examples/Loop.bc examples/Sort.bc
 
 build/codegen.o: src/codegen.cpp src/compile.hpp src/label.hpp
 
