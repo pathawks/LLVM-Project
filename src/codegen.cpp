@@ -12,6 +12,7 @@
 #include <llvm/Support/SourceMgr.h>
 
 #include "compile.hpp"
+#include "label.hpp"
 #include "op.hpp"
 
 using namespace std;
@@ -61,9 +62,7 @@ int main(int argc, char** argv) {
 		        "\n"    "\tmovq\t%rsp,\t%rbp\t# Save Old Stack Pointer"
 		     << endl;
 		for (BasicBlock &block: f.getBasicBlockList()) {
-			outs() << "Label_" << block.getValueID() << ":\n"
-			          "# Does this block have a name? " << (block.hasName()?"Yes":"No")
-			       << "\n# What is the block name?      " << block.getName();
+			outs() << getLabel(block) << ":";
 			for (Instruction &instruction: block) {
 				outs() << "\n\t#\t" << instruction << "\n\t" << compile(instruction);
 			}

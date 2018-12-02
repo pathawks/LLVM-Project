@@ -11,6 +11,7 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include "label.hpp"
 #include "op.hpp"
 
 using namespace std;
@@ -149,7 +150,7 @@ string op(const Value *v) {
 	} else if (const User* m = dyn_cast<const User>(v)) {
 		s << "User";
 	} else if (const BasicBlock* b = dyn_cast<const BasicBlock>(v)) {
-		s << "Label_" << b->getValueID();
+		return getLabel(*b);
 	} else {
 		cerr << "Unknown Operand";
 		s    << "Unknown Operand";
