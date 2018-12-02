@@ -36,6 +36,10 @@ string compile(Instruction &i) {
 		}
 		s << "andq\t$~15,\t%rsp\n\t"
 		     "callq\t" << op(i.getOperand(i.getNumOperands()-1));
+		if (const CallInst* call = dyn_cast<const CallInst>(&i))
+		if (!call->doesNotReturn()) {
+			s << "\n\tmovq\t%rax,\t" << getStackPosition(&i);
+		}
 		break;
 	case Instruction::Ret:
 		s <<     "movq\t" << op(i.getOperand(0)) << ",\t%rax\t# Set return value"
