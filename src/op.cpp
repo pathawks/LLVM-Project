@@ -98,7 +98,7 @@ string escape(string str) {
 string op(const Value *v) {
 	stringstream s;
 	if (const BinaryOperator* a = dyn_cast<const BinaryOperator>(v)) {
-		return op(a->getOperand(0)); // HACK
+		return getStackPosition(a);
 	} else if (const ConstantInt* c = dyn_cast<const ConstantInt>(v)) {
 		s << '$' << c->getSExtValue();
 	} else if (const GlobalVariable* m = dyn_cast<const GlobalVariable>(v)) {
@@ -139,7 +139,7 @@ string op(const Value *v) {
 	} else if (const ReturnInst* a = dyn_cast<const ReturnInst>(v)) {
 		s << "ReturnInst";
 	} else if (const UnaryInstruction* a = dyn_cast<const UnaryInstruction>(v)) {
-		return op(a->getOperand(0)); // HACK
+		s << op(a->getOperand(0)); // HACK
 	} else if (const Instruction* m = dyn_cast<const Instruction>(v)) {
 		s << "Inst";
 	} else if (const Argument* a = dyn_cast<const Argument>(v)) {

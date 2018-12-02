@@ -13,7 +13,7 @@
 static std::map<const llvm::Value*, std::string> stackVars;
 static int num;
 
-std::string getStackPosition(const llvm::AllocaInst *alloca) {
+std::string getStackPosition(const llvm::Instruction *alloca) {
 	std::string label;
 	try {
 		label = stackVars.at(alloca);

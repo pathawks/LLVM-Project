@@ -3,6 +3,7 @@
  */
 
 #include "compile.hpp"
+#include "stack.hpp"
 #include "op.hpp"
 
 using namespace std;
@@ -24,7 +25,12 @@ string compile(Instruction &i) {
 		break;
 	case Instruction::Call:
 		for (int j=0; j<i.getNumOperands()-1; ++j) {
-			s << "leaq\t" << op(i.getOperand(j)) << ",\t" << arg(j) << "\n\t";
+			Value *operand = i.getOperand(j);
+			if (const LoadInst* load = dyn_cast<const LoadInst>(operand)) {
+				s << "movq\t" << op(operand) << ",\t" << arg(j) << "\n\t";
+			} else {
+				s << "leaq\t" << op(operand) << ",\t" << arg(j) << "\n\t";
+			}
 		}
 		s << "callq\t" << op(i.getOperand(i.getNumOperands()-1));
 		break;
@@ -37,7 +43,8 @@ string compile(Instruction &i) {
 		break;
 	case Instruction::Add:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
-		s << "\n\taddq\t%r11,\t" << op(i.getOperand(1));
+		s << "\n\taddq\t" << op(i.getOperand(1)) << ",\t%r11";
+		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
 		break;
 	case Instruction::Br:
 		if (i.getNumOperands() > 1) {
