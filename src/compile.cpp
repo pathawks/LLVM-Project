@@ -53,10 +53,11 @@ string compile(Instruction &i) {
 		if (i.getNumOperands() > 1) {
 			Value *operand = i.getOperand(0);
 			if (const Instruction* cmp = dyn_cast<const Instruction>(operand)) {
+				string cascade = op(i.getOperand(2));
 				s << "cmpq\t$0,\t" << getStackPosition(cmp) << "\n\t";
 				s << "jnz\t" << op(i.getOperand(1));
 				s << "\n\t";
-				s << "jmp\t" << op(i.getOperand(2));
+				s << "jmp\t" << cascade;
 			} else {
 				s << "BAD CAST IN BR";
 			}
@@ -66,18 +67,15 @@ string compile(Instruction &i) {
 		break;
 	case Instruction::ICmp:
 		const ICmpInst* cmpi = dyn_cast<const ICmpInst>(&i);
-		Value *a = (Value*)((size_t)(&i) + 1);
-		Value *b = (Value*)((size_t)(&i) + 2);
-		string ifTrue      = getLabel(a, "ConditionTrue_");
-		string fallThrough = getLabel(b, "ConditionDone_");
+		string condLabel = getLabel(&i, "Condition_");
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
 		s << "\n\tsubq\t" << op(i.getOperand(1)) << ",\t%r11";
-		s << "\n\t" << condition(cmpi->getInversePredicate()) << "\t" << ifTrue;
+		s << "\n\t" << condition(cmpi->getInversePredicate()) << "\t" << condLabel << "_True";
 		s << "\n\tmovq\t$FALSE,\t" << getStackPosition(&i);
-		s << "\n\tjmp\t" << fallThrough;
-		s << "\n" << ifTrue << ":";
+		s << "\n\tjmp\t" << condLabel << "_Done";
+		s << "\n" << condLabel << "_True" << ":";
 		s << "\n\tmovq\t$TRUE,\t" << getStackPosition(&i);
-		s << "\n" << fallThrough << ":";
+		s << "\n" << condLabel << "_Done" << ":";
 		break;
 	}
 	s << '\n';
