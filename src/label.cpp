@@ -13,12 +13,16 @@
 std::string getLabel(const llvm::BasicBlock *block) {
 	static std::map<const llvm::BasicBlock*, std::string> blocks;
 	static int num;
-	if (blocks.count(block) == 0) {
+	std::string label;
+	try {
+		label = blocks.at(block);
+	} catch (const std::out_of_range& oor) {
 		std::stringstream s;
 		s << "BasicBlock_" << ++num;
-		blocks.insert(std::pair<const llvm::BasicBlock*, std::string>(block, s.str()));
+		label = s.str();
+		blocks.insert(std::pair<const llvm::BasicBlock*, std::string>(block, label));
 	}
-	return blocks[block];
+	return label;
 }
 
 std::string getLabel(const llvm::BasicBlock &block) {
