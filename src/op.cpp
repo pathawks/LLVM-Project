@@ -11,6 +11,7 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include "stack.hpp"
 #include "label.hpp"
 #include "op.hpp"
 
@@ -130,11 +131,7 @@ string op(const Value *v) {
 	} else if (const Constant* m = dyn_cast<const Constant>(v)) {
 		s << m->getName().str();
 	} else if (const AllocaInst* a = dyn_cast<const AllocaInst>(v)) {
-		if (const ConstantInt* c = dyn_cast<const ConstantInt>(a->getOperand(0))) {
-			s << c->getSExtValue() << "(%rsp)";
-		} else {
-			s << op(a->getOperand(0)) << "()";
-		}
+		return getStackPosition(a);
 	} else if (const CallInst* a = dyn_cast<const CallInst>(v)) {
 		s << "%rax";
 	} else if (const SelectInst* a = dyn_cast<const SelectInst>(v)) {

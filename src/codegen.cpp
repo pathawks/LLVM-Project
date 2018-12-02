@@ -14,6 +14,7 @@
 #include "compile.hpp"
 #include "label.hpp"
 #include "op.hpp"
+#include "stack.hpp"
 
 using namespace std;
 using namespace llvm;
@@ -52,6 +53,7 @@ int main(int argc, char** argv) {
 	cout << header(m) << endl;
 
 	for (Function &f: m->functions()) {
+		resetStack();
 		if (!f.getInstructionCount()) {
 			cout << "\n.equ " << f.getName().str() << ", _" << f.getName().str()
 			     << "\t# External function" << endl;

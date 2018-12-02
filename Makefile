@@ -8,7 +8,7 @@ default: build/ codegen examples/Add.bc examples/HelloWorld.bc examples/Sort.bc
 
 build/codegen.o: src/codegen.cpp src/compile.hpp src/label.hpp
 
-codegen: build/codegen.o build/compile.o build/op.o build/label.o
+codegen: build/codegen.o build/compile.o build/op.o build/label.o build/stack.o
 
 build:
 	mkdir build
