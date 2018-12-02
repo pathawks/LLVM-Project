@@ -56,7 +56,8 @@ string compile(Instruction &i) {
 		}
 		break;
 	case Instruction::ICmp:
-		s << "cmp\t" << op(i.getOperand(0)) << ",\t" << op(i.getOperand(1));
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
+		s << "\n\tcmpq\t" << op(i.getOperand(0)) << ",\t%r11";
 		break;
 	default:
 		s << "unknown instruction";
