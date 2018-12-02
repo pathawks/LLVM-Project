@@ -13,7 +13,7 @@ string compile(Instruction &i) {
 	stringstream s;
 	switch (i.getOpcode()) {
 	case Instruction::Alloca:
-		s << "subq\t$16,\t%rsp\t# Make space on the stack";
+		s << "subq\t$8,\t%rsp\t# Make space on the stack";
 		break;
 	case Instruction::Store:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11\t# Copy value to a temp register"
@@ -32,7 +32,8 @@ string compile(Instruction &i) {
 				s << "leaq\t" << op(operand) << ",\t" << arg(j) << "\n\t";
 			}
 		}
-		s << "callq\t" << op(i.getOperand(i.getNumOperands()-1));
+		s << "andq $~15, %rsp\n\t"
+		     "callq\t" << op(i.getOperand(i.getNumOperands()-1));
 		break;
 	case Instruction::Ret:
 		s <<     "movq\t" << op(i.getOperand(0)) << ",\t%rax\t# Set return value"
@@ -58,6 +59,7 @@ string compile(Instruction &i) {
 	case Instruction::ICmp:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
 		s << "\n\tcmpq\t" << op(i.getOperand(0)) << ",\t%r11";
+		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
 		break;
 	default:
 		s << "unknown instruction";
