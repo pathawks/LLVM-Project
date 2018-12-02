@@ -78,6 +78,6 @@ int main(int argc, char** argv) {
 	        "\n";
 
 	for (const GlobalVariable &g : m->globals()) {
-		cout << "\n" << g.getName().str() << ": " << op(&g) << endl;
+		cout << g.getName().str() << ":\t" << op(&g) << endl;
 	}
 }
