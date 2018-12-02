@@ -232,8 +232,9 @@ int main(int argc, char** argv) {
 			exit(EXIT_FAILURE);
 		}
 	} else {
-		cerr << "No input file specified"    "\n"
-			    "Reading LLVM-IR from stdin" << endl;
+		cerr << "No input file specified" "\n"
+		        "Reading LLVM-IR from stdin"
+		     << endl;
 		mod = parseIRFile("-", error, context, false);
 	}
 	Module *m = mod.get();
