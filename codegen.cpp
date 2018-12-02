@@ -88,6 +88,18 @@ string escape(string str) {
 	return str;
 }
 
+string header(Module *m) {
+	stringstream s;
+	s <<         "# Platform: " << m->getTargetTriple()
+	  << "\n"    "# Instructions: " << m->getInstructionCount()
+	  << "\n"    "# Id: " << m->getModuleIdentifier()
+	  << "\n"    "# Source File: " << m->getSourceFileName()
+	  << "\n"    ".global _main"
+	  << "\n"    ".equ _main, main"
+	;
+	return s.str();
+}
+
 /**
  * Convert operand value to string
  */
@@ -226,13 +238,7 @@ int main(int argc, char** argv) {
 	}
 	Module *m = mod.get();
 
-	cout <<         "# Platform: " << m->getTargetTriple()
-	     << "\n"    "# Instructions: " << m->getInstructionCount()
-	     << "\n"    "# Id: " << m->getModuleIdentifier()
-	     << "\n"    "# Source File: " << m->getSourceFileName()
-	     << "\n"    ".global _main"
-	     << "\n"    ".equ _main, main"
-	     << endl;
+	cout << header(m) << endl;
 
 	for (Function &f: m->functions()) {
 		if (!f.getInstructionCount()) {
@@ -254,7 +260,6 @@ int main(int argc, char** argv) {
 	}
 
 	for (const GlobalVariable &g : m->globals()) {
-		const Value * gg = dyn_cast<const Value>(&g);
-		cout << "\n" << gg->getName().str() << ": " << op(gg) << endl;
+		cout << "\n" << g.getName().str() << ": " << op(&g) << endl;
 	}
 }
