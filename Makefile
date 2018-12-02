@@ -6,7 +6,10 @@ LDFLAGS = -g `$(llvm-config) --ldflags --system-libs --libs`
 
 default: codegen examples/Add.bc examples/HelloWorld.bc examples/Sort.bc
 
-codegen: codegen.o
+codegen: build/codegen.o
+
+build:
+	mkdir build
 
 clean:
 	rm -rf *.o examples/*.bc examples/*.ll codegen a.out
@@ -17,8 +20,8 @@ clean:
 %.bc: %.c
 	$(CLANG) -c -emit-llvm -O0 -o $@ $^
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
+build/%.o: src/%.cpp build/
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
-%: %.o
+%: build/%.o
 	$(CXX) -v $(LDFLAGS) -o $@ $^
