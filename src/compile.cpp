@@ -49,16 +49,22 @@ string compile(Instruction &i) {
 		break;
 	case Instruction::Br:
 		if (i.getNumOperands() > 1) {
-			s << "jne\t" << op(i.getOperand(1));
-			s << "\n\t";
-			s << "jmp\t" << op(i.getOperand(2));
+			Value *operand = i.getOperand(0);
+			if (const Instruction* cmp = dyn_cast<const Instruction>(operand)) {
+				s << "cmpq\t$0,\t" << getStackPosition(cmp) << "\n\t";
+				s << "je\t" << op(i.getOperand(1));
+				s << "\n\t";
+				s << "jmp\t" << op(i.getOperand(2));
+			} else {
+				s << "BAD CAST IN BR";
+			}
 		} else {
 			s << "jmp\t" << op(i.getOperand(0));
 		}
 		break;
 	case Instruction::ICmp:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
-		s << "\n\tcmpq\t" << op(i.getOperand(0)) << ",\t%r11";
+		s << "\n\tsubq\t" << op(i.getOperand(1)) << ",\t%r11";
 		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
 		break;
 	default:
