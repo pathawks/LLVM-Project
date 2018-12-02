@@ -48,26 +48,26 @@ string arg(unsigned n) {
  */
 string condition(unsigned cond) {
 	switch (cond) {
-	case 1: 	// Equal
-		return "eq";
-	case 2: 	// Not Equal
-		return "ne";
-	case 3: 	// Unsigned Greater Than
-		return "ugt";
-	case 4: 	// Unsigned Greater Than or Equal
-		return "uge";
-	case 5: 	// Unsigned Less Than
-		return "ult";
-	case 6: 	// Unsigned Less Than or Equal
-		return "ule";
-	case 7: 	// Signed Greater Than
-		return "sgt";
-	case 8: 	// Signed Greater Than or Equal
-		return "sge";
-	case 9: 	// Signed less than
-		return "slt";
-	case 10:	// Signed less than or equal
-		return "sle";
+	case llvm::CmpInst::ICMP_EQ: 	// Equal
+		return "je";
+	case llvm::CmpInst::ICMP_NE: 	// Not Equal
+		return "jne";
+	case llvm::CmpInst::ICMP_UGT: 	// Unsigned Greater Than
+		return "jnbe";
+	case llvm::CmpInst::ICMP_UGE: 	// Unsigned Greater Than or Equal
+		return "jnb";
+	case llvm::CmpInst::ICMP_ULT: 	// Unsigned Less Than
+		return "jnae";
+	case llvm::CmpInst::ICMP_ULE: 	// Unsigned Less Than or Equal
+		return "jna";
+	case llvm::CmpInst::ICMP_SGT: 	// Signed Greater Than
+		return "jnle";
+	case llvm::CmpInst::ICMP_SGE: 	// Signed Greater Than or Equal
+		return "jnl";
+	case llvm::CmpInst::ICMP_SLT: 	// Signed Less Than
+		return "jnge";
+	case llvm::CmpInst::ICMP_SLE: 	// Signed Less Than or Equal
+		return "jng";
 	default:
 		return "???";
 	}

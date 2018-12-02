@@ -11,3 +11,4 @@
 
 std::string getLabel(const llvm::BasicBlock *block);
 std::string getLabel(const llvm::BasicBlock &block);
+std::string getLabel(const llvm::Value *, std::string);

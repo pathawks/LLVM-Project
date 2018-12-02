@@ -72,6 +72,10 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	cout << "\n.equ TRUE,  1"
+	        "\n.equ FALSE, 0"
+	        "\n";
+
 	for (const GlobalVariable &g : m->globals()) {
 		cout << "\n" << g.getName().str() << ": " << op(&g) << endl;
 	}
