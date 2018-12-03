@@ -88,20 +88,20 @@ string op(const Value *v) {
 	} else if (const ConstantExpr* m = dyn_cast<const ConstantExpr>(v)) {
 		s << m->getOperand(0)->getName().str() << "(%rip)";
 	} else if (const ConstantData* m = dyn_cast<const ConstantData>(v)) {
-		s << ">>" << m->getName().str() << "(%rip)";
+		s << m->getName().str() << "(%rip)";
 	} else if (const Constant* m = dyn_cast<const Constant>(v)) {
-		s << v->getName().str();
+		return v->getName().str();
 	} else if (const Instruction* m = dyn_cast<const Instruction>(v)) {
-		s << getStackPosition(m);
+		return getStackPosition(m);
 	} else if (const Argument* a = dyn_cast<const Argument>(v)) {
-		s << arg(a->getArgNo());
+		return arg(a->getArgNo());
 	} else if (const User* m = dyn_cast<const User>(v)) {
-		s << "User";
+		return "User";
 	} else if (const BasicBlock* b = dyn_cast<const BasicBlock>(v)) {
 		return getLabel(*b);
 	} else {
 		cerr << "Unknown Operand";
-		s    << "Unknown Operand";
+		return  "Unknown Operand";
 	}
 	return s.str();
 }
