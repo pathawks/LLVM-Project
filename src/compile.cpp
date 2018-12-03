@@ -23,6 +23,7 @@ string compile(Instruction &i) {
 		;
 		break;
 	case Instruction::Load:
+		return "";
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
 		break;
 	case Instruction::Call:
