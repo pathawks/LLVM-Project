@@ -71,6 +71,13 @@ string compile(Instruction &i) {
 			s << "jmp\t" << op(i.getOperand(0));
 		}
 		break;
+	case Instruction::GetElementPtr:
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11"
+		     "\n\taddq\t" << op(i.getOperand(1)) << ",\t%r11"
+		     "\n\taddq\t" << op(i.getOperand(2)) << ",\t%r11"
+		     "\n\tmovq\t%r11,\t" << getStackPosition(&i);
+		;
+		break;
 	case Instruction::ICmp:
 		const ICmpInst* cmpi = dyn_cast<const ICmpInst>(&i);
 		string condLabel = getLabel(&i, "Condition_");

@@ -141,7 +141,7 @@ string op(const Value *v) {
 	} else if (const UnaryInstruction* a = dyn_cast<const UnaryInstruction>(v)) {
 		s << op(a->getOperand(0)); // HACK
 	} else if (const Instruction* m = dyn_cast<const Instruction>(v)) {
-		s << "Inst";
+		s << getStackPosition(m);
 	} else if (const Argument* a = dyn_cast<const Argument>(v)) {
 		s << arg(a->getArgNo());
 	} else if (const User* m = dyn_cast<const User>(v)) {
