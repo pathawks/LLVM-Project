@@ -85,6 +85,8 @@ string escape(string str) {
 			str.replace(i, 1, "\\t");
 		} else if (str[i] == '\"') {
 			str.replace(i, 1, "\\\"");
+		} else if (str[i] == '\0') {
+			str.replace(i, 1, "\\0");
 		} else {
 			++i;
 		}
@@ -108,7 +110,7 @@ string op(const Value *v) {
 			s << "GlobalVariable";
 		}
 	} else if (const ConstantDataArray* m = dyn_cast<const ConstantDataArray>(v)) {
-		s << ".string \"" << escape(m->getAsCString().str()) << "\"";
+		s << ".ascii \"" << escape(m->getAsString()) << "\"";
 	} else if (const ConstantAggregateZero* m = dyn_cast<const ConstantAggregateZero>(v)) {
 		if (m->isNullValue()) {
 			return "NULL";
