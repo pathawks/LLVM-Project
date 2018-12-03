@@ -63,6 +63,7 @@ int main(int argc, char** argv) {
 		        "\n"    "\tpushq\t%rbp    \t# Save Old Base Pointer"
 		        "\n"    "\tmovq\t%rsp,\t%rbp\t# Save Old Stack Pointer"
 		        "\n"    "\tsubq\t$" << f.getInstructionCount()*8 << ",\t%rsp"
+		        "\n"    "\tandq\t$~15,\t%rsp"
 		     << endl;
 		for (BasicBlock &block: f.getBasicBlockList()) {
 			outs() << getLabel(block) << ":";

@@ -34,8 +34,7 @@ string compile(Instruction &i) {
 				s << "leaq\t" << op(operand) << ",\t" << arg(j) << "\n\t";
 			}
 		}
-		s << "andq\t$~15,\t%rsp\n\t"
-		     "callq\t" << op(i.getOperand(i.getNumOperands()-1));
+		s << "callq\t" << op(i.getOperand(i.getNumOperands()-1));
 		if (const CallInst* call = dyn_cast<const CallInst>(&i))
 		if (!call->doesNotReturn()) {
 			s << "\n\tmovq\t%rax,\t" << getStackPosition(&i);
