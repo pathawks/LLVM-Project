@@ -23,14 +23,14 @@ string compile(Instruction &i) {
 		;
 		break;
 	case Instruction::Load:
-		return "";
-		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
+		s << "leaq\t" << op(i.getOperand(0)) << ",\t%r11";
+		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
 		break;
 	case Instruction::Call:
 		for (int j=0; j<i.getNumOperands()-1; ++j) {
 			Value *operand = i.getOperand(j);
-			if (const LoadInst* load = dyn_cast<const LoadInst>(operand)) {
-				s << "movq\t" << op(operand) << ",\t" << arg(j) << "\n\t";
+			if (const LoadInst *load = dyn_cast<const LoadInst>(operand)) {
+				s << "movq\t" << getStackPosition(load) << ",\t" << arg(j) << "\n\t";
 			} else {
 				s << "leaq\t" << op(operand) << ",\t" << arg(j) << "\n\t";
 			}
@@ -72,7 +72,7 @@ string compile(Instruction &i) {
 		}
 		break;
 	case Instruction::GetElementPtr:
-		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
+		s << "leaq\t" << op(i.getOperand(0)) << ",\t%r11";
 		for (int j=1; j<i.getNumOperands(); ++j) {
 			s << "\n\taddq\t" << op(i.getOperand(j)) << ",\t%r11";
 		}

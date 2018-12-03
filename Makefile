@@ -6,9 +6,9 @@ LDFLAGS = -g `$(llvm-config) --ldflags --system-libs --libs`
 
 default: build/ codegen examples/Add.bc examples/HelloWorld.bc examples/Loop.bc examples/Sort.bc
 
-build/codegen.o: src/codegen.cpp src/compile.hpp src/label.hpp
+build/codegen.o: src/codegen.cpp src/compile.hpp src/label.hpp src/constants.hpp
 
-codegen: build/codegen.o build/compile.o build/op.o build/label.o build/stack.o
+codegen: build/codegen.o build/compile.o build/op.o build/label.o build/stack.o build/constants.o
 
 build:
 	mkdir build

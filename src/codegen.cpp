@@ -12,6 +12,7 @@
 #include <llvm/Support/SourceMgr.h>
 
 #include "compile.hpp"
+#include "constants.hpp"
 #include "label.hpp"
 #include "op.hpp"
 #include "stack.hpp"
@@ -79,6 +80,6 @@ int main(int argc, char** argv) {
 	        "\n";
 
 	for (const GlobalVariable &g : m->globals()) {
-		cout << g.getName().str() << ":\t" << op(&g) << endl;
+		cout << g.getName().str() << ":\t" << valueToLiteral(&g) << endl;
 	}
 }
