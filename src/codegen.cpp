@@ -77,6 +77,7 @@ int main(int argc, char** argv) {
 
 	cout << "\n.equ TRUE,  1"
 	        "\n.equ FALSE, 0"
+	        "\n\n.data"
 	        "\n";
 
 	for (const GlobalVariable &g : m->globals()) {
