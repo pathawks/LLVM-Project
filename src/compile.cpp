@@ -55,6 +55,11 @@ string compile(Instruction &i) {
 		s << "\n\taddq\t" << op(i.getOperand(1)) << ",\t%r11";
 		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
 		break;
+	case Instruction::Sub:
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
+		s << "\n\tsubq\t" << op(i.getOperand(1)) << ",\t%r11";
+		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
+		break;
 	case Instruction::Br:
 		if (i.getNumOperands() > 1) {
 			Value *operand = i.getOperand(0);
