@@ -40,7 +40,7 @@ string escape(string str) {
 string valueToLiteral(const Value *v) {
 	stringstream s;
 	if (const ConstantInt* c = dyn_cast<const ConstantInt>(v)) {
-		s << ".long " << c->getSExtValue();
+		s << ".long " << c->getSExtValue() << "\n\t.long 0";
 	} else if (const ConstantDataSequential* m = dyn_cast<const ConstantDataSequential>(v)) {
 		if (m->isString()) {
 			s << ".ascii \"" << escape(m->getAsString()) << "\"";
