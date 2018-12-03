@@ -14,17 +14,21 @@ void swap(int* x, int* y) {
 	*y = temp;
 }
 
-void sortList() {
-	for (int i=0; i<size-1; ++i)
+void selectionSort() {
+	for (int i=0; i<size-1; ++i) {
+		int min = i;
 		for (int j=i+1; j<size; ++j)
-			if (list[i] > list[j])
-				swap(list+i, list+j);
+			if (list[min] > list[j])
+				min = j;
+		if (min != i)
+			swap(list+i, list+min);
+	}
 }
 
 int main(void) {
 	puts("Unsorted:");
 	printList();
-	sortList();
+	selectionSort();
 	puts("\nSorted:");
 	printList();
 	return 0;
