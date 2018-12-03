@@ -22,8 +22,15 @@ string compile(Instruction &i) {
 		     "\n\tmovq\t" "%r11" ",\t" << op(i.getOperand(1)) << "\t# Copy from temp register to destination"
 		;
 		break;
+	case Instruction::SExt:
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
+		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
+		break;
 	case Instruction::Load:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
+		if (dyn_cast<const GetElementPtrInst>(i.getOperand(0))) {
+			s << "\n\tmovq\t(%r11),\t%r11";
+		}
 		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
 		break;
 	case Instruction::Call:
@@ -79,7 +86,9 @@ string compile(Instruction &i) {
 	case Instruction::GetElementPtr:
 		s << "leaq\t" << op(i.getOperand(0)) << ",\t%r11";
 		for (int j=1; j<i.getNumOperands(); ++j) {
-			s << "\n\taddq\t" << op(i.getOperand(j)) << ",\t%r11";
+			s << "\n\tmovq\t" << op(i.getOperand(j)) << ",\t%r10"
+			     "\n\tleaq(%r11, %r10, 8), %r11"
+			;
 		}
 		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
 		;
