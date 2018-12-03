@@ -72,10 +72,11 @@ string compile(Instruction &i) {
 		}
 		break;
 	case Instruction::GetElementPtr:
-		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11"
-		     "\n\taddq\t" << op(i.getOperand(1)) << ",\t%r11"
-		     "\n\taddq\t" << op(i.getOperand(2)) << ",\t%r11"
-		     "\n\tmovq\t%r11,\t" << getStackPosition(&i);
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
+		for (int j=1; j<i.getNumOperands(); ++j) {
+			s << "\n\taddq\t" << op(i.getOperand(j)) << ",\t%r11";
+		}
+		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
 		;
 		break;
 	case Instruction::ICmp:

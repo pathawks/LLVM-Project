@@ -109,8 +109,12 @@ string op(const Value *v) {
 		} else {
 			s << "GlobalVariable";
 		}
-	} else if (const ConstantDataArray* m = dyn_cast<const ConstantDataArray>(v)) {
-		s << ".ascii \"" << escape(m->getAsString()) << "\"";
+	} else if (const ConstantDataSequential* m = dyn_cast<const ConstantDataSequential>(v)) {
+		if (m->isString()) {
+			s << ".ascii \"" << escape(m->getAsString()) << "\"";
+		} else {
+			s << ".ascii \"Not a string\"";
+		}
 	} else if (const ConstantAggregateZero* m = dyn_cast<const ConstantAggregateZero>(v)) {
 		if (m->isNullValue()) {
 			return "NULL";
