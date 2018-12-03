@@ -4,9 +4,8 @@ int list[] = {1,5,4,3,6,2};
 int size = 6;
 
 void printList() {
-	for (int i=0; i<size; ++i) {
+	for (int i=0; i<size; ++i)
 		printf("\t%d\n", list[i]);
-	}
 }
 
 void swap(int* x, int* y) {
@@ -17,10 +16,9 @@ void swap(int* x, int* y) {
 
 void sortList() {
 	for (int i=0; i<size-1; ++i)
-		for (int j=i+1; j<size; ++j) {
+		for (int j=i+1; j<size; ++j)
 			if (list[i] > list[j])
 				swap(list+i, list+j);
-		}
 }
 
 int main(void) {
