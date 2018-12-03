@@ -42,8 +42,10 @@ string compile(Instruction &i) {
 		}
 		break;
 	case Instruction::Ret:
-		s <<     "movq\t" << op(i.getOperand(0)) << ",\t%rax\t# Set return value"
-		     "\n\tmovq\t%rbp,\t%rsp\t# Restore Old Stack Pointer"
+		if (i.getNumOperands()) {
+			s << "movq\t" << op(i.getOperand(0)) << ",\t%rax\t# Set return value";
+		}
+		s << "\n\tmovq\t%rbp,\t%rsp\t# Restore Old Stack Pointer"
 		     "\n\tpopq\t%rbp    \t# Restore Old Base Pointer"
 		     "\n\tretq            \t# Return from function"
 		;
