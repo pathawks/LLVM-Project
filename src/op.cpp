@@ -91,14 +91,6 @@ string op(const Value *v) {
 		s << ">>" << m->getName().str() << "(%rip)";
 	} else if (const Constant* m = dyn_cast<const Constant>(v)) {
 		s << v->getName().str();
-	} else if (const AllocaInst* a = dyn_cast<const AllocaInst>(v)) {
-		return getStackPosition(a);
-	} else if (const CallInst* a = dyn_cast<const CallInst>(v)) {
-		s << "%rax";
-	} else if (const SelectInst* a = dyn_cast<const SelectInst>(v)) {
-		s << "SelectInst";
-	} else if (const UnaryInstruction* a = dyn_cast<const UnaryInstruction>(v)) {
-		s << op(a->getOperand(0)); // HACK
 	} else if (const Instruction* m = dyn_cast<const Instruction>(v)) {
 		s << getStackPosition(m);
 	} else if (const Argument* a = dyn_cast<const Argument>(v)) {
