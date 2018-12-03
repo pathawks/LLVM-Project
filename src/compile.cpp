@@ -23,7 +23,7 @@ string compile(Instruction &i) {
 		;
 		break;
 	case Instruction::Load:
-		s << "leaq\t" << op(i.getOperand(0)) << ",\t%r11";
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
 		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
 		break;
 	case Instruction::Call:
