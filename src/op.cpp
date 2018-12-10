@@ -79,16 +79,13 @@ string condition(unsigned cond) {
  */
 string op(const Value *v) {
 	stringstream s;
-	if (const BinaryOperator* i = dyn_cast<const BinaryOperator>(v)) {
-		return getStackPosition(i);
-	} else if (const ConstantInt* c = dyn_cast<const ConstantInt>(v)) {
+	if (const ConstantInt* c = dyn_cast<const ConstantInt>(v)) {
 		s << '$' << c->getSExtValue();
-	} else if (const GlobalVariable* m = dyn_cast<const GlobalVariable>(v)) {
-		s << m->getName().str() << "(%rip)";
+	} else if (dyn_cast<const ConstantData>(v)
+	       ||  dyn_cast<const GlobalVariable>(v)) {
+		s << v->getName().str() << "(%rip)";
 	} else if (const ConstantExpr* m = dyn_cast<const ConstantExpr>(v)) {
-		s << m->getOperand(0)->getName().str() << "(%rip)";
-	} else if (const ConstantData* m = dyn_cast<const ConstantData>(v)) {
-		s << m->getName().str() << "(%rip)";
+		return op(m->getOperand(0));
 	} else if (const Constant* m = dyn_cast<const Constant>(v)) {
 		return v->getName().str();
 	} else if (const Instruction* m = dyn_cast<const Instruction>(v)) {
