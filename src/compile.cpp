@@ -36,10 +36,10 @@ string compile(Instruction &i) {
 	case Instruction::Call:
 		for (int j=0; j<i.getNumOperands()-1; ++j) {
 			Value *operand = i.getOperand(j);
-			if (const LoadInst *load = dyn_cast<const LoadInst>(operand)) {
-				s << "movq\t" << getStackPosition(load) << ",\t" << arg(j) << "\n\t";
-			} else {
+			if (dyn_cast<const ConstantExpr>(operand)) {
 				s << "leaq\t" << op(operand) << ",\t" << arg(j) << "\n\t";
+			} else {
+				s << "movq\t" << op(operand) << ",\t" << arg(j) << "\n\t";
 			}
 		}
 		s << "callq\t" << op(i.getOperand(i.getNumOperands()-1));
