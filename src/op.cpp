@@ -4,7 +4,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <string>
 
 #include <llvm/LinkAllIR.h>
@@ -38,9 +37,7 @@ string arg(unsigned n) {
 	case 5:
 		return "%r9";
 	default:
-		stringstream s;
-		s << (n-4)*-8 << "(%rbp)";
-		return s.str();
+		return to_string((n-4)*-8) + "(%rbp)";
 	}
 }
 
@@ -49,25 +46,25 @@ string arg(unsigned n) {
  */
 string condition(unsigned cond) {
 	switch (cond) {
-	case llvm::CmpInst::ICMP_EQ: 	// Equal
+	case llvm::CmpInst::ICMP_EQ:	// Equal
 		return "je";
-	case llvm::CmpInst::ICMP_NE: 	// Not Equal
+	case llvm::CmpInst::ICMP_NE:	// Not Equal
 		return "jne";
-	case llvm::CmpInst::ICMP_UGT: 	// Unsigned Greater Than
+	case llvm::CmpInst::ICMP_UGT:	// Unsigned Greater Than
 		return "jnbe";
-	case llvm::CmpInst::ICMP_UGE: 	// Unsigned Greater Than or Equal
+	case llvm::CmpInst::ICMP_UGE:	// Unsigned Greater Than or Equal
 		return "jnb";
-	case llvm::CmpInst::ICMP_ULT: 	// Unsigned Less Than
+	case llvm::CmpInst::ICMP_ULT:	// Unsigned Less Than
 		return "jnae";
-	case llvm::CmpInst::ICMP_ULE: 	// Unsigned Less Than or Equal
+	case llvm::CmpInst::ICMP_ULE:	// Unsigned Less Than or Equal
 		return "jna";
-	case llvm::CmpInst::ICMP_SGT: 	// Signed Greater Than
+	case llvm::CmpInst::ICMP_SGT:	// Signed Greater Than
 		return "jnle";
-	case llvm::CmpInst::ICMP_SGE: 	// Signed Greater Than or Equal
+	case llvm::CmpInst::ICMP_SGE:	// Signed Greater Than or Equal
 		return "jnl";
-	case llvm::CmpInst::ICMP_SLT: 	// Signed Less Than
+	case llvm::CmpInst::ICMP_SLT:	// Signed Less Than
 		return "jnge";
-	case llvm::CmpInst::ICMP_SLE: 	// Signed Less Than or Equal
+	case llvm::CmpInst::ICMP_SLE:	// Signed Less Than or Equal
 		return "jng";
 	default:
 		return "???";
@@ -78,27 +75,25 @@ string condition(unsigned cond) {
  * Convert operand value to string
  */
 string op(const Value *v) {
-	stringstream s;
-	if (const ConstantInt* c = dyn_cast<const ConstantInt>(v)) {
-		s << '$' << c->getSExtValue();
-	} else if (dyn_cast<const ConstantData>(v)
-	       ||  dyn_cast<const GlobalVariable>(v)) {
-		s << v->getName().str() << "(%rip)";
-	} else if (const ConstantExpr* m = dyn_cast<const ConstantExpr>(v)) {
-		return op(m->getOperand(0));
-	} else if (const Constant* m = dyn_cast<const Constant>(v)) {
-		return v->getName().str();
-	} else if (const Instruction* m = dyn_cast<const Instruction>(v)) {
-		return getStackPosition(m);
-	} else if (const Argument* a = dyn_cast<const Argument>(v)) {
+	if (const Argument* a = dyn_cast<const Argument>(v)) {
 		return arg(a->getArgNo());
-	} else if (const User* m = dyn_cast<const User>(v)) {
-		return "User";
 	} else if (const BasicBlock* b = dyn_cast<const BasicBlock>(v)) {
 		return getLabel(*b);
+	} else if (const ConstantInt* c = dyn_cast<const ConstantInt>(v)) {
+		return "$" + to_string(c->getSExtValue());
+	} else if (const Instruction* m = dyn_cast<const Instruction>(v)) {
+		return getStackPosition(m);
+	} else if (const ConstantExpr* m = dyn_cast<const ConstantExpr>(v)) {
+		return op(m->getOperand(0));
+	} else if (dyn_cast<const ConstantData>(v)
+	       ||  dyn_cast<const GlobalVariable>(v)) {
+		return v->getName().str() + "(%rip)";
+	} else if (dyn_cast<const Constant>(v)) {
+		return v->getName().str();
+	} else if (dyn_cast<const User>(v)) {
+		return "User";
 	} else {
 		cerr << "Unknown Operand";
 		return  "Unknown Operand";
 	}
-	return s.str();
 }
