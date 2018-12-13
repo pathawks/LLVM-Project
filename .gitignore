@@ -3,3 +3,6 @@
 *.o
 *.s
 codegen
+
+/Sort
+/a.out

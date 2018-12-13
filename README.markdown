@@ -9,5 +9,7 @@ make
 ## To run
 
 ```sh
-./codegen examples/HelloWorld.bc
+./codegen examples/Sort.bc > Sort.s
+gcc Sort.s -o Sort
+./Sort
 ```
