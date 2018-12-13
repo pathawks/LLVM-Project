@@ -14,13 +14,19 @@ string compile(Instruction &i) {
 	stringstream s;
 	switch (i.getOpcode()) {
 	case Instruction::Alloca:
+		getStackPosition(&i);
 		return "";
 		s << "subq\t$8,\t%rsp\t# Make space on the stack";
 		break;
 	case Instruction::Store:
-		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11\t# Copy value to a temp register"
-		     "\n\tmovq\t" "%r11" ",\t" << op(i.getOperand(1)) << "\t# Copy from temp register to destination"
-		;
+		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11\t# Copy value to a temp register";
+		if (dyn_cast<const GetElementPtrInst>(i.getOperand(1))
+		||  dyn_cast<const LoadInst>(i.getOperand(1))) {
+			s << "\n\tmovq\t" << op(i.getOperand(1)) << ",\t%r10\t# Copy from temp register to destination";
+			s << "\n\tmovq\t%r11,\t(%r10)";
+		} else {
+			s << "\n\tmovq\t" "%r11" ",\t" << op(i.getOperand(1)) << "\t# Copy from temp register to destination";
+		}
 		break;
 	case Instruction::SExt:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
@@ -28,7 +34,8 @@ string compile(Instruction &i) {
 		break;
 	case Instruction::Load:
 		s << "movq\t" << op(i.getOperand(0)) << ",\t%r11";
-		if (dyn_cast<const GetElementPtrInst>(i.getOperand(0))) {
+		if (dyn_cast<const GetElementPtrInst>(i.getOperand(0))
+		||  dyn_cast<const LoadInst>(i.getOperand(0))) {
 			s << "\n\tmovq\t(%r11),\t%r11";
 		}
 		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
@@ -68,6 +75,7 @@ string compile(Instruction &i) {
 		s << "\n\tmovq\t%r11,\t" << getStackPosition(&i);
 		break;
 	case Instruction::Br:
+		getStackPosition(&i);
 		if (i.getNumOperands() > 1) {
 			Value *operand = i.getOperand(0);
 			if (const Instruction* cmp = dyn_cast<const Instruction>(operand)) {
